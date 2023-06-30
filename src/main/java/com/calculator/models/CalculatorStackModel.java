@@ -3,6 +3,7 @@ package com.calculator.models;
 import com.calculator.CalculatorModel;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Stack;
 
 public class CalculatorStackModel implements CalculatorModel {
@@ -32,7 +33,7 @@ public class CalculatorStackModel implements CalculatorModel {
             } else if (expressionCharArray[i] == '(') {
                 operatorStack.push(expressionCharArray[i]);
             } else if (expressionCharArray[i] == ')') {
-                while (operatorStack.peek() != '(') {
+                while (!operatorStack.isEmpty() && operatorStack.peek() != '(') {
                     if (operandStack.size() == 1){
                         operandStack.push(operandStack.pop());
                         break;
@@ -42,8 +43,24 @@ public class CalculatorStackModel implements CalculatorModel {
                     double result = calculateOnce(operatorStack.pop(), operandStack.pop(), operandStack.pop());
                     operandStack.push(result);
                 }
+                if (operatorStack.isEmpty()){
+                    isError = true;
+                    errorMessage = "错误，括号不匹配，右括号多余";
+                    return "错误，括号不匹配"; // 操作符栈为空，表达式无效
+                }
                 operatorStack.pop(); // 弹出 '('
             } else if (expressionCharArray[i] == '+' || expressionCharArray[i] == '-' || expressionCharArray[i] == '×' || expressionCharArray[i] == '÷') {
+                if(expressionCharArray[i] == '-'){
+                    if(i == 0){
+                        operandStack.push(0.0);
+                    }else if(expressionCharArray[i-1] == '('){
+                        operandStack.push(0.0);
+                    }else if(expressionCharArray[i-1] == '×' || expressionCharArray[i-1] == '÷'){
+                        operandStack.push(-1.0);
+                        operatorStack.push('×');
+                        continue;
+                    }
+                }
                 // 当前符号和栈顶符号优先级比较，如果当前符号优先级低于栈顶符号，则先计算栈顶符号，否则直接压入栈
                 while (!operatorStack.isEmpty() && hasPrecedence(expressionCharArray[i], operatorStack.peek())) {
                     if (operandStack.size() < 2)
@@ -60,6 +77,11 @@ public class CalculatorStackModel implements CalculatorModel {
 
         // 计算剩余的操作符，直到操作符栈为空
         while (!operatorStack.isEmpty()) {
+            if(operandStack.peek() == '(') {
+                isError = true;
+                errorMessage = "错误，括号不匹配";
+                return "错误，括号不匹配，左括号多余";
+            }
             if (operandStack.size() < 2)
                 return "错误，操作数与操作符不匹配，表达式无效"; // 操作数不足，表达式无效
             double result = calculateOnce(operatorStack.pop(), operandStack.pop(), operandStack.pop());
@@ -75,7 +97,8 @@ public class CalculatorStackModel implements CalculatorModel {
             isError = false;
             return errorMessage;
         }
-        return String.valueOf(bd.stripTrailingZeros());
+        DecimalFormat decimalFormat = new DecimalFormat("#.###############");
+        return decimalFormat.format(bd);
     }
 
     private int getPriority(char op){
@@ -97,7 +120,11 @@ public class CalculatorStackModel implements CalculatorModel {
                 return a + b;
             }
             case '-' -> {
-                return a - b;
+                BigDecimal num1 = new BigDecimal(a);
+                BigDecimal num2 = new BigDecimal(b);
+
+                BigDecimal result = num1.subtract(num2);
+                return result.doubleValue();
             }
             case '×' -> {
                 return a * b;
