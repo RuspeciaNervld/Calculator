@@ -54,10 +54,12 @@ public class CalculatorParserModel implements CalculatorModel {
     String errorMessage = "";
     private String expression = "";
     private int position = 0;
+    private boolean isNegativeSign = false; // 新增：用于区分负号和减号
 
     public String getResultString(String expression) {
         this.expression = expression;
         this.position = 0;
+        this.isNegativeSign = false; // 新增：重置负号标志
         Expression parsedExpression = parseExpression();
         BigDecimal bd = new BigDecimal(Double.toString(parsedExpression.evaluate()));
 
@@ -71,13 +73,20 @@ public class CalculatorParserModel implements CalculatorModel {
             char operator = expression.charAt(position);
             if (operator == '+' || operator == '-') {
                 position++;
-                Expression rightOperand = parseTerm();
-                leftOperand = new BinaryOperation(operator, leftOperand, rightOperand);
+                if (operator == '-' && !isNegativeSign) {
+                    // 当前位置的减号是减号，而不是负号
+                    Expression rightOperand = parseTerm();
+                    leftOperand = new BinaryOperation(operator, leftOperand, rightOperand);
+                } else {
+                    // 当前位置的减号是负号
+                    isNegativeSign = false; // 重置负号标志
+                    Expression rightOperand = parseFactor(); // 解析负号后的因子
+                    leftOperand = new BinaryOperation('×', leftOperand, rightOperand); // 使用乘法代替负号
+                }
             } else {
                 break;
             }
         }
-
         return leftOperand;
     }
 
@@ -119,12 +128,21 @@ public class CalculatorParserModel implements CalculatorModel {
             }
 
             double value = Double.parseDouble(sb.toString());
+            if (isNegativeSign) {
+                value = -value; // 当前位置的减号是负号，将值取负数
+                isNegativeSign = false; // 重置负号标志
+            }
             return new Number(value);
+        } else if (currentChar == '-') {
+            // 当前位置的减号是负号
+            isNegativeSign = true;
+            position++;
+            return parseFactor();
         } else {
             isError = true;
             errorMessage = "错误，无效的字符";
             return null;
         }
     }
-
 }
+
