@@ -168,9 +168,9 @@ public class CalculatorApplication extends Application {
         primaryStage.setScene(scene);
         primaryStage.setResizable(false); // 禁止窗口缩放
         // 显示窗口
-        primaryStage.setTitle("计算器");
+        primaryStage.setTitle("·  (っ•̀ω•́)っ✎⁾⁾ 计算器");
         // 添加计算器图标
-        Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/calculator/calculator_icon2.png")));
+        Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/calculator/calculator_icon3.png")));
         primaryStage.getIcons().add(icon);
 
 
