@@ -43,6 +43,43 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>io.github.fvarrui</groupId>
+                <artifactId>javapackager</artifactId>
+                <version>1.6.7</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+
+                            <mainClass>com.calculator.Main</mainClass>
+
+                            <bundleJre>true</bundleJre>
+                            <generateInstaller>true</generateInstaller>
+                            <administratorRequired>false</administratorRequired>
+                            <platform>windows</platform>
+                            <iconFile>C:\Code\IDEAProjects\Calculator\src\main\resources\windows\CalculatorApplication.ico</iconFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com/calculator/CalculatorApplication</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
