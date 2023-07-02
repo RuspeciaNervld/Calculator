@@ -44,9 +44,7 @@ public class CalculatorStackModel implements CalculatorModel {
                     operandStack.push(result);
                 }
                 if (operatorStack.isEmpty()){
-                    isError = true;
-                    errorMessage = "错误，括号不匹配，右括号多余";
-                    return "错误，括号不匹配"; // 操作符栈为空，表达式无效
+                    return "错误，括号不匹配，右括号多余"; // 操作符栈为空，表达式无效
                 }
                 operatorStack.pop(); // 弹出 '('
             } else if (expressionCharArray[i] == '+' || expressionCharArray[i] == '-' || expressionCharArray[i] == '×' || expressionCharArray[i] == '÷') {
@@ -78,8 +76,6 @@ public class CalculatorStackModel implements CalculatorModel {
         // 计算剩余的操作符，直到操作符栈为空
         while (!operatorStack.isEmpty()) {
             if(operandStack.peek() == '(') {
-                isError = true;
-                errorMessage = "错误，括号不匹配";
                 return "错误，括号不匹配，左括号多余";
             }
             if (operandStack.size() < 2)
